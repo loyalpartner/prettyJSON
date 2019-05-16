@@ -4,12 +4,12 @@ module Main (
 
 import SimpleJSON 
 import PrettyJSON (renderJValue)
-import Prettify (compact)
+import Prettify (compact, pretty)
 -- import PutJSON
 
 main :: IO ()
 -- main = putStrLn $ renderJValue students
-main = putStrLn $ compact $ renderJValue students
+main = putStrLn $ pretty 5 $ renderJValue students
 
 xiaoming :: JValue
 xiaoming = JObject [("name", JString "小明"), ("age", JNumber 12)]
