@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7364e71d2180dac2649edcf9a9c73c2467fbc3941707d61b0fcff04ce63ec473
+-- hash: e86d15a6ef93d8520182b5a87882711413fb68b7bea6897fdc7cea9fc7d2299f
 
 name:           prettyJSON
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      JSONClass
       Lib
       Prettify
       PrettyJSON

@@ -1,11 +1,21 @@
-module Prettify (Doc, string, text, double, series, compact, pretty, (<<)) where
+module Prettify
+  ( Doc
+  , string
+  , text
+  , double
+  , series
+  , compact
+  , pretty
+  , (<<)
+  ) where
 
-data Doc = Empty
-         | Char Char
-         | Text String
-         | Line
-         | Concat Doc Doc
-         | Union Doc Doc
+data Doc
+  = Empty
+  | Char Char
+  | Text String
+  | Line
+  | Concat Doc Doc
+  | Union Doc Doc
   deriving (Show, Eq)
 
 empty :: Doc
@@ -37,35 +47,36 @@ compact x = transform [x]
     transform (d:ds) =
       case d of
         Empty -> transform ds
-        Char c -> c: transform ds
+        Char c -> c : transform ds
         Text s -> s ++ transform ds
         Line -> '\n' : transform ds
-        a `Concat` b -> transform (a:b:ds)
-        _ `Union` b -> transform (b:ds)
+        a `Concat` b -> transform (a : b : ds)
+        _ `Union` b -> transform (b : ds)
 
 pretty :: Int -> Doc -> String
 pretty width x = best 0 [x]
   where
     best col (d:ds) =
       case d of
-      Empty        -> best col ds
-      Char c       -> c :  best (col + 1) ds
-      Text s       -> s ++ best (col + length s) ds
-      Line         -> '\n' : best 0 ds
-      a `Concat` b -> best col (a:b:ds)
-      a `Union` b  -> nicest col (best col (a:ds))
-                                 (best col (b:ds))
+        Empty -> best col ds
+        Char c -> c : best (col + 1) ds
+        Text s -> s ++ best (col + length s) ds
+        Line -> '\n' : best 0 ds
+        a `Concat` b -> best col (a : b : ds)
+        a `Union` b -> nicest col (best col (a : ds)) (best col (b : ds))
     best _ _ = ""
-    nicest col a b | (width - least) `fits` a = a
-                     | otherwise                = b
-                     where least = min width col
-
+    nicest col a b
+      | (width - least) `fits` a = a
+      | otherwise = b
+      where
+        least = min width col
 
 fits :: Int -> String -> Bool
-w `fits` _ | w < 0 = False
-_ `fits` ""        = True
-_ `fits` ('\n':_)  = True
-w `fits` (_:cs)    = (w - 1) `fits` cs
+w `fits` _
+  | w < 0 = False
+_ `fits` "" = True
+_ `fits` ('\n':_) = True
+w `fits` (_:cs) = (w - 1) `fits` cs
 
 -- tool functions
 enclose :: Char -> Char -> Doc -> Doc
@@ -77,16 +88,18 @@ a << Empty = a
 a << b = a `Concat` b
 
 oneChar :: Char -> Doc
-oneChar c = case lookup c simpleEscapes of
-              Just r -> text r
-              Nothing -> char c
+oneChar c =
+  case lookup c simpleEscapes of
+    Just r -> text r
+    Nothing -> char c
 
 hcat :: [Doc] -> Doc
 hcat = foldr (<<) empty
 
 simpleEscapes :: [(Char, String)]
 simpleEscapes = zipWith ch "\b\n\f\r\t\\\"/" "bnfrt\\\"/"
-  where ch a b = (a, ['\\', b])
+  where
+    ch a b = (a, ['\\', b])
 
 punctuate :: Doc -> [Doc] -> [Doc]
 punctuate _ [] = []
@@ -97,7 +110,7 @@ fsep :: [Doc] -> Doc
 fsep = foldr (</>) empty
 
 (</>) :: Doc -> Doc -> Doc
-x</>y = x << softline << y
+x </> y = x << softline << y
 
 softline :: Doc
 softline = group line
